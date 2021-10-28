@@ -1,0 +1,136 @@
+<html>
+<head>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.Menubar {
+	background-color: #EBEBEB;
+	padding: 2px;
+}
+	
+.Menubar li{
+	display: inline-block;
+	padding-left: 8px;
+	padding-right: 8px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	border: 1px solid transparent;
+}
+
+.Menubar li:hover{
+	border: 1px solid #55AAEE;
+	background-color: #77CCFF;
+}
+
+.Menubar li .Menu{
+	display:none;
+}
+
+.Menubar li:hover .Menu{
+	margin-top: 5px;
+	margin-left: -9px;
+	display:block;
+	position:absolute;
+	z-index: 100;
+	background-color: #EBEBEB;
+	border: 1px solid #888888;
+}
+
+.Menubar li:hover .Menu li{
+	display: block;
+}
+
+.Menubar li:hover .Menu li hr{
+	border: 1px inset #EBEBEB;
+}
+
+.Menubar li:hover .Menu .separator{
+	border: 1px solid transparent;
+	background-color: #EBEBEB;
+}
+
+.Toolbar{
+	background-color: #EBEBEB;
+	padding: 2px;
+}
+
+.Toolbar Button {
+	padding: 2px;
+	width: 4em;
+	height: 3em;
+	
+	filter: grayscale(100%);
+	
+	border: 1px solid transparent;
+}
+
+.Toolbar Button:hover {
+	filter: none;
+	border: 1px outset;
+	transform: translate(-1px, -1px);	
+}
+
+.Toolbar Button:active {
+	filter: none;
+	border: 1px inset;
+	transform: translate(1px, 1px);	
+}
+
+</style>
+</head>
+<body>
+<div class="MenuBar">
+<ul>
+<li>File
+<div class="Menu">
+	<ul>
+		<li><img src='menu/new.png'></img> New
+		<li><img src='menu/open.png'></img> Open...
+		<li class="separator"><hr>
+		<li><img src='menu/save.png'></img> Save
+		<li><img src='menu/save.png'></img> Save As...
+		<li class="separator"><hr>
+		<li><img src='menu/exit.png'></img> Exit
+	</ul>
+</div>
+</li>
+<li>View
+<div class="Menu">
+	<ul>
+		<li><img src='menu/flowchart.png'></img> Flowchart
+		<li><img src='menu/vbsource.png'></img> Visual Basic Source
+		<li><img src='menu/pascalsource.png'></img> Pascal Source
+	</ul>
+</div>
+</li>
+<li>Help
+<div class="Menu">
+	<ul>
+		<li><img src='menu/help.png'></img> Guide
+		<li><img src='menu/tips.png'></img> Tips
+		<li><img src='menu/about.png'></img> About
+	</ul>
+</div>
+</li>
+</ul>
+</div>
+
+<div class="Toolbar">
+<ul>
+<button><img src='toolbar/start.png'></img></button>
+<button><img src='toolbar/stop.png'></img></button>
+<button><img src='toolbar/input.png'></img></button>
+<button><img src='toolbar/process.png'></img></button>
+<button><img src='toolbar/output.png'></img></button>
+<button><img src='toolbar/if.png'></img></button>
+</ul>
+</div>
+
+<div class="Workarea">
+
+</div>
+</body>
+</html>
