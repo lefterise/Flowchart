@@ -154,3 +154,33 @@
   
   
   function start(){}
+  
+  
+function addIOElement () {
+  const group = document.createElementNS("http://www.w3.org/2000/svg","g");
+  group.classList.add("draggable-group");
+  
+  const outline = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  outline.classList.add("outline");
+  outline.setAttribute("points", "15,0 170,0 155,40 0,40");
+  outline.setAttribute("fill", "white");
+  outline.setAttribute("stroke", "black");
+  
+  const label = document.createElementNS("http://www.w3.org/2000/svg","text");
+  label.classList.add("text", "unselectable");
+  label.setAttribute("x", "20");
+  label.setAttribute("y", "23");
+  label.setAttribute("font-family", "Verdana");
+  label.setAttribute("font-size", "10");
+  label.setAttribute("fill", "black");
+  label.setAttribute("stroke", "none");
+  
+  const content = document.createTextNode('out("Your name is", name)');
+  label.appendChild(content);
+  
+  group.appendChild(outline);
+  group.appendChild(label);
+  
+  const workspace = document.getElementById("componentLayer");
+  workspace.appendChild(group);
+}

@@ -144,7 +144,7 @@
 <ul>
 <button><img src='toolbar/start.png'></img></button>
 <button><img src='toolbar/stop.png'></img></button>
-<button><img src='toolbar/input.png'></img></button>
+<button><img src='toolbar/input.png' onclick="addIOElement()"></img></button>
 <button><img src='toolbar/process.png'></img></button>
 <button><img src='toolbar/output.png'></img></button>
 <button><img src='toolbar/if.png'></img></button>
@@ -154,28 +154,10 @@
 
 <div class="Workarea">
 <svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" onload="makeDraggable(evt)" class="workspace">
-		<g id="io" class="draggable-group">
-			<polygon class="outline" points="15,0 170,0 155,40 0,40" fill="white" stroke="black"/>
-			<text class="text, unselectable" x="20" y="23" font-family="Verdana" font-size="10" fill="black" stroke="none" >
-				name = in("Enter Name")
-			</text>
-		</g>
+	<g id="componentLayer">
+	</g>
 		
-		<g id="io2" class="draggable-group">
-			<polygon class="outline" points="15,100 170,100 155,140 0,140" fill="white" stroke="black"/>
-			<text class="text, unselectable" x="20" y="123" font-family="Verdana" font-size="10" fill="black" stroke="none" >
-				out("Your name is", name)
-			</text>
-		</g>
-		
-		<g id="io3" class="draggable-group">
-			<polygon class="outline" points="15,200 170,200 155,240 0,240" fill="white" stroke="black"/>
-			<text class="text, unselectable" x="20" y="223" font-family="Verdana" font-size="10" fill="black" stroke="none" >
-				out("Your name is", name)
-			</text>
-		</g>
-		
-		<rect id="select" x="0" y="0" width="100" height="100" stroke = "#6699DD", fill = "#AADDFF" fill-opacity="0.4" visibility='hidden'/>
+	<rect id="select" x="0" y="0" width="100" height="100" stroke = "#6699DD", fill = "#AADDFF" fill-opacity="0.4" visibility='hidden'/>
 </svg>
 
 <!--canvas id="MyCanvas" width="1200" height="1000"></canvas-->
