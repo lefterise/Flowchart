@@ -8,11 +8,9 @@ function makeDraggable(evt) {
 	svg.addEventListener('mousedown', startDrag);
 	svg.addEventListener('mousemove', drag);
 	svg.addEventListener('mouseup', endDrag);
-	//svg.addEventListener('mouseleave', endDrag);
 	svg.addEventListener('touchstart', startDrag);
 	svg.addEventListener('touchmove', drag);
 	svg.addEventListener('touchend', endDrag);
-	//svg.addEventListener('touchleave', endDrag);
 	svg.addEventListener('touchcancel', endDrag);
 	
 	let sel = document.getElementById("select");
@@ -44,15 +42,18 @@ function makeDraggable(evt) {
 		return {x: transform.matrix.e, y: transform.matrix.f};		
 	}
 
-	function startDrag(evt) {	
-		let currentItem = false;
-	
+	function getDraggableItem(evt){
 		if (evt.target.classList.contains('draggable')) {
-			currentItem = evt.target;
+			return evt.target;
 		} else if (evt.target.parentNode.classList.contains('draggable-group')) {
-			currentItem = evt.target.parentNode;
+			return evt.target.parentNode;
 		}
-		
+		return null;
+	}
+
+	function startDrag(evt) {	
+		let currentItem = getDraggableItem(evt);
+			
 		if (!evt.shiftKey && !evt.ctrlKey && !isElementSelected(currentItem)){
 			deselectAll();
 		}
@@ -85,7 +86,14 @@ function makeDraggable(evt) {
 		}		
 	}
 	
+	function deselectComponent(item){		
+		setElementOutlineColor(item, false);		
+		selectedElements = selectedElements.filter(e => e.el != item);
+	}
 	
+	function toggleComponentSelect(item){
+		isElementSelected(item) ? deselectComponent(item) : selectComponent(item);		
+	}
 	
 	function selectBoxStart(evt){
 		let sel = evt.target.getElementById("select");
@@ -177,8 +185,19 @@ function makeDraggable(evt) {
 
 	function endDrag(evt) {
 		if (isDraggingComponents){
+			
+			var currentMousePosition = getMousePosition(evt);
+			
+		
 			updatedOriginalPositionsOfSelectedItems();
 			isDraggingComponents = false;
+
+			let dx = currentMousePosition.x - mouseDownPosition.x;
+			let dy = currentMousePosition.y - mouseDownPosition.y;			
+			if (dx == 0 && dy == 0){
+				let currentItem = getDraggableItem(evt);
+				//deselectComponent(currentItem);
+			}
 		}else{
 			let sel = document.getElementById("select");
 			selectComponentsInSelectionRect(sel);
