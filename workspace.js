@@ -1,8 +1,8 @@
-	var lastSelectedElement, mouseDownPosition, previouslySelectedElement;
-	var selectAreaStart;
-	var selectedElements = [];
+var isDraggingComponents, mouseDownPosition;
+var selectAreaStart;
+var selectedElements = [];
 	
-  function makeDraggable(evt) {
+function makeDraggable(evt) {
 	var svg = evt.target;
 
 	svg.addEventListener('mousedown', startDrag);
@@ -19,74 +19,84 @@
 	sel.addEventListener('mousemove', drag);
 
 	function getMousePosition(evt) {
-	  var CTM = svg.getScreenCTM();
-	  if (evt.touches) { evt = evt.touches[0]; }
-	  return {
-		x: (evt.clientX - CTM.e) / CTM.a,
-		y: (evt.clientY - CTM.f) / CTM.d
-	  };
+		var CTM = svg.getScreenCTM();
+		if (evt.touches) { evt = evt.touches[0]; }
+		return {
+			x: (evt.clientX - CTM.e) / CTM.a,
+			y: (evt.clientY - CTM.f) / CTM.d
+		};
 	}
 
-	function initialiseDragging(evt) {
-		mouseDownPosition = getMousePosition(evt);
 
+	function getElementPosition(el){
 		// Make sure the first transform on the element is a translate transform
-		var transforms = lastSelectedElement.transform.baseVal;
+		var transforms = el.transform.baseVal;
 
 		if (transforms.length === 0 || transforms.getItem(0).type !== SVGTransform.SVG_TRANSFORM_TRANSLATE) {
-		  // Create an transform that translates by (0, 0)
-		  var translate = svg.createSVGTransform();
-		  translate.setTranslate(0, 0);
-		  lastSelectedElement.transform.baseVal.insertItemBefore(translate, 0);
+			// Create an transform that translates by (0, 0)
+			var translate = svg.createSVGTransform();
+			translate.setTranslate(0, 0);
+			el.transform.baseVal.insertItemBefore(translate, 0);
 		}
 
 		let transform = transforms.getItem(0);
 		
-		return {x: transform.matrix.e, y: transform.matrix.f};
+		return {x: transform.matrix.e, y: transform.matrix.f};		
 	}
 
-	function startDrag(evt) {
-	  	
-	  let currentItem = false;
-	  
-	  if (evt.target.classList.contains('draggable')) {
-		  currentItem = evt.target;				
-	  } else if (evt.target.parentNode.classList.contains('draggable-group')) {
-		  currentItem = evt.target.parentNode;		
-	  }	  	 
-	  
-	  if (!evt.shiftKey && !evt.ctrlKey && !selectedElements.some(e => e.el == currentItem)){
-		  //deselect
-		  for (let e of selectedElements){
-			setElementOutlineColor(e.el, false);
-		  }
-		  selectedElements = [];
-	  }
-	  
-	  
-	  if (currentItem){		  
-		lastSelectedElement = currentItem;
-		let original = initialiseDragging(evt);
-		setElementOutlineColor(lastSelectedElement, true);
-		if (!selectedElements.some(e => e.el == lastSelectedElement)){
-			selectedElements.push({el: lastSelectedElement, original: original});
+	function startDrag(evt) {	
+		let currentItem = false;
+	
+		if (evt.target.classList.contains('draggable')) {
+			currentItem = evt.target;
+		} else if (evt.target.parentNode.classList.contains('draggable-group')) {
+			currentItem = evt.target.parentNode;
 		}
-	  } else if (evt.target.classList.contains('workspace')) {
-		  selectBoxStart(evt);
-	  }
-	  
+		
+		if (!evt.shiftKey && !evt.ctrlKey && !isElementSelected(currentItem)){
+			deselectAll();
+		}
+		
+		if (currentItem){
+			isDraggingComponents = true;
+			mouseDownPosition = getMousePosition(evt);
+			selectComponent(currentItem);
+		} else if (evt.target.classList.contains('workspace')) {
+			selectBoxStart(evt);
+		}
 	}
 	
+	function deselectAll(){		
+		for (let e of selectedElements){
+			setElementOutlineColor(e.el, false);
+		}
+		selectedElements = [];
+	}
+	
+	function isElementSelected(item){
+		return selectedElements.some(e => e.el == item);
+	}
+	
+	function selectComponent(item){
+		let originalPos = getElementPosition(item);
+		setElementOutlineColor(item, true);
+		if (!isElementSelected(item)){
+			selectedElements.push({el: item, originalPos: originalPos});
+		}		
+	}
+	
+	
+	
 	function selectBoxStart(evt){
-		  let sel = evt.target.getElementById("select");
-		  var CTM = evt.target.getScreenCTM();
-		  selectAreaStart = getMousePosition(evt);
-		  sel.style.visibility = "visible";
-		  
-		  sel.x.baseVal.value = selectAreaStart.x;
-		  sel.y.baseVal.value = selectAreaStart.y;
-		  sel.width.baseVal.value = 1;
-		  sel.height.baseVal.value = 1;
+		let sel = evt.target.getElementById("select");
+		var CTM = evt.target.getScreenCTM();
+		selectAreaStart = getMousePosition(evt);
+		sel.style.visibility = "visible";
+		
+		sel.x.baseVal.value = selectAreaStart.x;
+		sel.y.baseVal.value = selectAreaStart.y;
+		sel.width.baseVal.value = 1;
+		sel.height.baseVal.value = 1;
 	}
 	
 	function setElementOutlineColor(element, selected){
@@ -102,60 +112,94 @@
 	}
 
 	function drag(evt) {	  
-		  
-	  if (lastSelectedElement) {
-		evt.preventDefault();
-		var currentMousePosition = getMousePosition(evt);
+		if (isDraggingComponents) {
+			evt.preventDefault();
+
+			var currentMousePosition = getMousePosition(evt);
+
+			let dx = currentMousePosition.x - mouseDownPosition.x;
+			let dy = currentMousePosition.y - mouseDownPosition.y;
+
+			translateSelectedElements(dx, dy);
 		
+		}else{
+			selectBoxDrag(evt);
+		}
+	}
+	
+	function translateSelectedElements(dx, dy){
 		for (let e of selectedElements){
 			e.el.transform.baseVal.getItem(0).setTranslate(
-				e.original.x + currentMousePosition.x - mouseDownPosition.x, 
-				e.original.y + currentMousePosition.y - mouseDownPosition.y
+				e.originalPos.x + dx, 
+				e.originalPos.y + dy
 			);
 		}
 		
-		
-	  }else{
-		  selectBoxDrag(evt);
-	  }
 	}
 	
 	function selectBoxDrag(evt){
 		let sel = document.getElementById("select");
 
-		  let selectAreaDrag = getMousePosition(evt);
-		  	  
-		  if (sel && selectAreaStart){
+		let selectAreaDrag = getMousePosition(evt);
+
+		if (sel && selectAreaStart){
 			sel.x.baseVal.value = Math.min(selectAreaDrag.x, selectAreaStart.x);
 			sel.y.baseVal.value = Math.min(selectAreaDrag.y, selectAreaStart.y);
 			sel.width.baseVal.value = Math.abs(selectAreaDrag.x - selectAreaStart.x);
 			sel.height.baseVal.value = Math.abs(selectAreaDrag.y - selectAreaStart.y);
-		  }
+		}
+	}
+
+	function isInBox(component, box){
+		let pos = getElementPosition(component);
+		let size = component.getBBox();
+		return ( pos.x >= box.x 
+			  && pos.y >= box.y 
+			  && pos.x + size.width <= box.x + box.width
+			  && pos.y + size.height <= box.y + box.height
+		);
+	}
+	
+	function selectComponentsInSelectionRect(sel){
+		let selectionBox = sel.getBBox();
+		const workspace = document.getElementById("componentLayer");
+		for (let component of workspace.getElementsByClassName("draggable")){
+			if (isInBox(component, selectionBox)){
+				selectComponent(component);
+			}
+		}
+		for (let component of workspace.getElementsByClassName("draggable-group")){
+			if (isInBox(component, selectionBox)){
+				selectComponent(component);
+			}
+		}
 	}
 
 	function endDrag(evt) {
-	  updatedOriginalPositionsOfSelectedItems();
-	  
-	  previouslySelectedElement = lastSelectedElement;
-	  lastSelectedElement = false;	  
-	  
-	  let sel = document.getElementById("select");
-	  sel.style.visibility = "hidden";
+		if (isDraggingComponents){
+			updatedOriginalPositionsOfSelectedItems();
+			isDraggingComponents = false;
+		}else{
+			let sel = document.getElementById("select");
+			selectComponentsInSelectionRect(sel);
+			sel.style.visibility = "hidden";
+		}
 	}
 	
 	function updatedOriginalPositionsOfSelectedItems(){
-	    for (let e of selectedElements){
-			e.original.x = e.el.transform.baseVal.getItem(0).matrix.e;
-			e.original.y = e.el.transform.baseVal.getItem(0).matrix.f;
-		}		
+		for (let e of selectedElements){
+			e.originalPos = getElementPosition(e.el);
+		}
 	}
 	
-  }
-  
-  
-  function start(){}
-  
-  
+}
+
+
+
+function start(){}
+
+
+
 function addIOElement () {
   const group = document.createElementNS("http://www.w3.org/2000/svg","g");
   group.classList.add("draggable-group");
