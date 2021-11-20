@@ -1,7 +1,8 @@
 var isDraggingComponents, mouseDownPosition;
 var selectAreaStart;
 var selectedElements = [];
-	
+var resizeHandleBeingDragged = null;
+
 function makeDraggable(evt) {
 	var svg = evt.target;
 
@@ -62,8 +63,11 @@ function makeDraggable(evt) {
 			isDraggingComponents = true;
 			mouseDownPosition = getMousePosition(evt);
 			selectComponent(currentItem);
+		} else if (evt.target.classList.contains('resize-handle')){
+			resizeStart(evt);
 		} else if (evt.target.classList.contains('workspace')) {
 			selectBoxStart(evt);
+			clearAllResizeHandles();
 		}
 	}
 	
@@ -112,6 +116,8 @@ function makeDraggable(evt) {
 			if (selected){
 				e.setAttribute("stroke", "#6699DD");
 				e.setAttribute("fill", "#AADDFF");
+				
+				createResizeHandles(e);
 			}else{
 				e.setAttribute("stroke", "black");
 				e.setAttribute("fill", "white");
@@ -119,7 +125,10 @@ function makeDraggable(evt) {
 		}
 	}
 
-	function drag(evt) {	  
+	function drag(evt) {
+		
+		resizeUpdate(evt);
+		
 		if (isDraggingComponents) {
 			evt.preventDefault();
 
@@ -141,6 +150,11 @@ function makeDraggable(evt) {
 				e.originalPos.x + dx, 
 				e.originalPos.y + dy
 			);
+			
+			if (e.el.resizeDecorator){
+				positionDecorator(e.el);
+			}
+			
 		}
 		
 	}
@@ -184,6 +198,8 @@ function makeDraggable(evt) {
 	}
 
 	function endDrag(evt) {
+		resizeEnd(evt);
+		
 		if (isDraggingComponents){
 			
 			var currentMousePosition = getMousePosition(evt);
@@ -211,6 +227,114 @@ function makeDraggable(evt) {
 		}
 	}
 	
+	
+	function createResizeHandles(el){
+		const pos = getElementPosition(el.parentNode);
+		const bbox = el.parentNode.getBBox();
+		
+		if (!el.parentNode.resizeDecorator){
+		
+			let decorators = 
+			{  left: createResizeHandle("ew-resize")
+			 , right: createResizeHandle("ew-resize")
+			 , top: createResizeHandle("ns-resize")
+			 , bottom: createResizeHandle("ns-resize")
+			};
+									
+			el.parentNode.resizeDecorator = decorators;
+		}
+		
+		positionDecorator(el.parentNode);	
+	}
+	
+	function positionDecorator(el){
+		const pos = getElementPosition(el);
+		const bbox = el.getBBox();
+		
+		let d = el.resizeDecorator;
+		
+		if (el.classList.contains('io')){			
+			setHandlePosition(d.left,  pos.x + 7, pos.y + bbox.height / 2);
+			setHandlePosition(d.right, pos.x + bbox.width - 7, pos.y + bbox.height / 2);
+			setHandlePosition(d.top,   pos.x + bbox.width / 2, pos.y);
+			setHandlePosition(d.bottom,pos.x + bbox.width / 2, pos.y + bbox.height);		
+		} else{
+			setHandlePosition(d.left,  pos.x, pos.y + bbox.height / 2);
+			setHandlePosition(d.right, pos.x + bbox.width, pos.y + bbox.height / 2);
+			setHandlePosition(d.top,   pos.x + bbox.width / 2, pos.y);
+			setHandlePosition(d.bottom,pos.x + bbox.width / 2, pos.y + bbox.height);		
+		}
+	}
+	
+	function setHandlePosition(el, x, y){
+		el.x.baseVal.value = x - 3;
+		el.y.baseVal.value = y - 3;		
+	}
+	
+	function getHandlePosition(el){
+		return {x: el.x.baseVal.value + 3, y: el.y.baseVal.value + 3};
+	}
+	
+	function createResizeHandle(cursor){
+		const outline = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+		outline.classList.add(cursor);
+		outline.classList.add("resize-handle");
+		outline.setAttribute("width", "6");
+		outline.setAttribute("height", "6");
+		outline.setAttribute("fill", "white");
+		outline.setAttribute("stroke", "#4477BB");	
+
+		const workspace = document.getElementById("resizeHandleLayer");
+		workspace.appendChild(outline);
+			
+		return outline;
+	}
+	
+	function resizeStart(e){
+		let el = e.target;
+		
+		el.mouseDownLoc = getMousePosition(e);
+		el.originalPos = getHandlePosition(el);
+		
+		resizeHandleBeingDragged = el;
+	}
+	
+	function resizeUpdate(e){
+		if (!resizeHandleBeingDragged) 
+			return;
+		
+		let el = resizeHandleBeingDragged;
+		
+		let mouseLoc = getMousePosition(e);
+		
+		let dx = el.classList.contains('ew-resize') ? mouseLoc.x - el.mouseDownLoc.x : 0;
+		let dy = el.classList.contains('ns-resize') ? mouseLoc.y - el.mouseDownLoc.y : 0;
+		
+		setHandlePosition(el, el.originalPos.x + dx, el.originalPos.y + dy)		
+	}
+	function resizeEnd(e){
+		resizeHandleBeingDragged = null;
+	}
+	
+	function removeDecorator(el){
+		let decorators = el.resizeDecorator;
+		if (!decorators)
+			return;
+		resizeHandleLayer.removeChild(decorators.left);
+		resizeHandleLayer.removeChild(decorators.right);
+		resizeHandleLayer.removeChild(decorators.top);
+		resizeHandleLayer.removeChild(decorators.bottom);
+		
+		delete el.resizeDecorator;
+	}
+	
+	function clearAllResizeHandles(){
+		const componentLayerLayer = document.getElementById("componentLayer");
+		
+		for (let el of componentLayerLayer.childNodes){
+			removeDecorator(el);
+		}
+	}
 }
 
 
@@ -219,9 +343,10 @@ function start(){}
 
 
 
-function addIOElement () {
+function addIOElement (labelText) {
   const group = document.createElementNS("http://www.w3.org/2000/svg","g");
   group.classList.add("draggable-group");
+  group.classList.add("io");
   
   const outline = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
   outline.classList.add("outline");
@@ -238,7 +363,7 @@ function addIOElement () {
   label.setAttribute("fill", "black");
   label.setAttribute("stroke", "none");
   
-  const content = document.createTextNode('out("Your name is", name)');
+  const content = document.createTextNode(labelText);
   label.appendChild(content);
   
   group.appendChild(outline);
@@ -248,9 +373,10 @@ function addIOElement () {
   workspace.appendChild(group);
 }
 
-function addProcessElement(){
+function addProcessElement(labelText){
   const group = document.createElementNS("http://www.w3.org/2000/svg","g");
   group.classList.add("draggable-group");
+  group.classList.add("process");
   
   const outline = document.createElementNS("http://www.w3.org/2000/svg", "rect");
   outline.classList.add("outline");
@@ -270,7 +396,7 @@ function addProcessElement(){
   label.setAttribute("fill", "black");
   label.setAttribute("stroke", "none");
   
-  const content = document.createTextNode('out("Your name is", name)');
+  const content = document.createTextNode(labelText);
   label.appendChild(content);
   
   group.appendChild(outline);
@@ -279,3 +405,39 @@ function addProcessElement(){
   const workspace = document.getElementById("componentLayer");
   workspace.appendChild(group);
 }
+
+
+function addStartEndElement(labelText){
+  const group = document.createElementNS("http://www.w3.org/2000/svg","g");
+  group.classList.add("draggable-group");
+  group.classList.add("start-stop");
+  
+  const outline = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+  outline.classList.add("outline");
+  outline.setAttribute("cx", "30");
+  outline.setAttribute("cy", "20");
+  outline.setAttribute("rx", "30");
+  outline.setAttribute("ry", "20");
+  outline.setAttribute("fill", "white");
+  outline.setAttribute("stroke", "black");
+  
+  const label = document.createElementNS("http://www.w3.org/2000/svg","text");
+  label.classList.add("text", "unselectable");
+  label.setAttribute("x", "18");
+  label.setAttribute("y", "23");
+  label.setAttribute("font-family", "Verdana");
+  label.setAttribute("font-size", "10");
+  label.setAttribute("fill", "black");
+  label.setAttribute("stroke", "none");
+  
+  const content = document.createTextNode(labelText);
+  label.appendChild(content);
+  
+  group.appendChild(outline);
+  group.appendChild(label);
+  
+  const workspace = document.getElementById("componentLayer");
+  workspace.appendChild(group);
+}
+
+

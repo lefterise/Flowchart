@@ -100,6 +100,10 @@
     -ms-user-select: none;
     user-select: none;
 }
+
+.ew-resize {cursor: ew-resize;}
+.ns-resize {cursor: ns-resize;}
+
 </style>
 </head>
 <body onload="start()">
@@ -141,11 +145,11 @@
 
 <div class="Toolbar">
 <ul>
-<button><img src='toolbar/start.png'></img></button>
-<button><img src='toolbar/stop.png'></img></button>
-<button><img src='toolbar/input.png' onclick="addIOElement()"></img></button>
-<button><img src='toolbar/process.png' onclick="addProcessElement()"></img></button>
-<button><img src='toolbar/output.png' onclick="addIOElement()"></img></button>
+<button><img src='toolbar/start.png' onclick="addStartEndElement('Start')"></img></button>
+<button><img src='toolbar/stop.png' onclick="addStartEndElement('Stop')"></img></button>
+<button><img src='toolbar/input.png' onclick="addIOElement('x = in(Give number)')"></img></button>
+<button><img src='toolbar/process.png' onclick="addProcessElement('y = x * x')"></img></button>
+<button><img src='toolbar/output.png' onclick="addIOElement('out(The square is:, y)')"></img></button>
 <button><img src='toolbar/if.png'></img></button>
 </ul>
 </div>
@@ -154,8 +158,13 @@
 <div class="Workarea">
 <svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" onload="makeDraggable(evt)" class="workspace">
 	<g id="componentLayer">
+	
 	</g>
-		
+	
+	<g id="resizeHandleLayer">
+	
+	</g>
+	
 	<rect id="select" x="0" y="0" width="100" height="100" stroke = "#6699DD", fill = "#AADDFF" fill-opacity="0.4" visibility='hidden'/>
 </svg>
 
