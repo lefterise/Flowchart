@@ -32,6 +32,8 @@ function makeDraggable(evt) {
 	}
 
 	function startDrag(evt) {
+		evt.preventDefault();
+		
 		mouseDownPosition = getMousePosition(evt);
 
 		for (let c of components) {
@@ -75,6 +77,8 @@ function makeDraggable(evt) {
 	}
 	
 	function drag(evt) {
+		evt.preventDefault();
+		
 		if (!mouseDownPosition)
 			return;
 
@@ -97,6 +101,8 @@ function makeDraggable(evt) {
 	}
 	
 	function endDrag(evt) {
+		evt.preventDefault();
+		
 		if (state == 'resize') {
 			resizeHandleBeingDragged.endDrag();
 			resizeHandleBeingDragged = null;
