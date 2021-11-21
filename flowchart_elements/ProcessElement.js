@@ -40,5 +40,37 @@ class ProcessElement extends FlowchartElement {
 
     belongsTo(el) {
         return el == this.group || el == this.outline || el == this.label;
-    }    
+    }
+    
+    beginResize(location) {
+        let pos = this.getPosition();
+
+        this.originalSize =
+        {
+          x: pos.x 
+        , y: pos.y
+        , w: this.outline.width.baseVal.value
+        , h: this.outline.height.baseVal.value
+        };
+    }
+
+    resize(location, dx, dy) {
+        switch (location) {
+            case 'right':
+                this.outline.width.baseVal.value = this.originalSize.w + dx;
+                break;
+            case 'left':
+                this.outline.width.baseVal.value = this.originalSize.w - dx;
+                this.setPosition(this.originalSize.x + dx, this.originalSize.y);
+                break;
+            case 'bottom':
+                this.outline.height.baseVal.value = this.originalSize.h + dy;
+                break;
+            case 'top':
+                this.outline.height.baseVal.value = this.originalSize.h - dy;
+                this.setPosition(this.originalSize.x, this.originalSize.y + dy);
+                break;
+        }
+        this.positionResizeHandles();
+    }
 }

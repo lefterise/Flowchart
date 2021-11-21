@@ -53,13 +53,16 @@ class FlowchartElement {
 		this.isBeingDragged = false;
 	}
 
-	 createResizeHandles() {		
+	beginResize(location) { }	
+	resize(location, dx, dy) { }
+
+	createResizeHandles() {		
 		if (!this.resizeHandles) {	
 			this.resizeHandles =
-			{ left:   new ResizeHandle(this.rootElement, true)
-			, right: new ResizeHandle(this.rootElement, true)
-			, top: new ResizeHandle(this.rootElement, false)
-			, bottom: new ResizeHandle(this.rootElement, false)
+			{ left:   new ResizeHandle(this, 'left')
+			, right:  new ResizeHandle(this, 'right')
+			, top:    new ResizeHandle(this, 'top')
+			, bottom: new ResizeHandle(this, 'bottom')
 			};		
 		}
 		this.positionResizeHandles();

@@ -1,9 +1,8 @@
 
 class ResizeHandle{
-	constructor(owner, isHorizontal){
-		this.el = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-		this.isHorizontal = isHorizontal;		
-		this.el.classList.add(isHorizontal ? 'ew-resize' : 'ns-resize');
+	constructor(owner, location){
+		this.el = document.createElementNS("http://www.w3.org/2000/svg", "rect");		
+		this.el.classList.add(location == 'left' || location == 'right' ? 'ew-resize' : 'ns-resize');
 		this.el.classList.add("resize-handle");
 		this.el.setAttribute("width", "6");
 		this.el.setAttribute("height", "6");
@@ -11,6 +10,7 @@ class ResizeHandle{
 		this.el.setAttribute("stroke", "#4477BB");	
 		
 		this.owner = owner;
+		this.location = location;
 
 		const layer = document.getElementById("resizeHandleLayer");
 		layer.appendChild(this.el);
@@ -33,16 +33,23 @@ class ResizeHandle{
 	initDrag() {
 		this.originalPosistion = this.getPosition();
 		this.isBeingDragged = true;
+		
+		this.owner.beginResize(this.location);		
 	}
 
 	drag(dx, dy) {
 		if (!this.isBeingDragged)
 			return;
 
+		let isHorizontal = this.location == 'left' || this.location == 'right';
+
 		this.setPosition(
-			this.originalPosistion.x + ( this.isHorizontal ? dx : 0),
-			this.originalPosistion.y + (!this.isHorizontal ? dy : 0)
+			this.originalPosistion.x + (isHorizontal ? dx : 0),
+			this.originalPosistion.y + (!isHorizontal ? dy : 0)
 		);
+
+		
+		this.owner.resize(this.location, dx, dy);		
 	}
 
 	endDrag() {

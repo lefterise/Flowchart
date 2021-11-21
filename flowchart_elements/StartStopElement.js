@@ -41,4 +41,42 @@ class StartStopElement extends FlowchartElement {
     belongsTo(el) {
         return el == this.group || el == this.outline || el == this.label;
     }
+
+    beginResize(location) {
+        let pos = this.getPosition();
+
+        this.originalSize =
+        {
+              x: pos.x
+            , y: pos.y
+            , cx: this.outline.cx.baseVal.value
+            , cy: this.outline.cy.baseVal.value
+            , rx: this.outline.rx.baseVal.value
+            , ry: this.outline.ry.baseVal.value
+        };
+    }
+
+    resize(location, dx, dy) {
+        switch (location) {
+            case 'right':
+                this.outline.rx.baseVal.value = this.originalSize.rx + dx / 2;
+                this.outline.cx.baseVal.value = this.originalSize.cx + dx / 2;
+                break;
+            case 'left':
+                this.outline.rx.baseVal.value = this.originalSize.rx - dx / 2;
+                this.outline.cx.baseVal.value = this.originalSize.cx - dx / 2;
+                this.setPosition(this.originalSize.x + dx, this.originalSize.y);
+                break;
+            case 'bottom':
+                this.outline.ry.baseVal.value = this.originalSize.ry + dy / 2;
+                this.outline.cy.baseVal.value = this.originalSize.cy + dy / 2;
+                break;
+            case 'top':
+                this.outline.ry.baseVal.value = this.originalSize.ry - dy / 2;
+                this.outline.cy.baseVal.value = this.originalSize.cy - dy / 2;
+                this.setPosition(this.originalSize.x, this.originalSize.y + dy);
+                break;
+        }
+        this.positionResizeHandles();
+    }
 }
