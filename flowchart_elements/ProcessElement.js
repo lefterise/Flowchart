@@ -13,20 +13,7 @@ class ProcessElement extends FlowchartElement {
         outline.setAttribute("fill", "white");
         outline.setAttribute("stroke", "black");
 
-        let label = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        label.classList.add("text", "unselectable");
-        label.setAttribute("x", "10");
-        label.setAttribute("y", "23");
-        label.setAttribute("font-family", "Verdana");
-        label.setAttribute("font-size", "10");
-        label.setAttribute("fill", "black");
-        label.setAttribute("stroke", "none");
-
-        let content = document.createTextNode(labelText);
-        label.appendChild(content);
-
-        group.appendChild(outline);
-        group.appendChild(label);
+        group.appendChild(outline);      
 
         const workspace = document.getElementById("componentLayer");
         workspace.appendChild(group);
@@ -35,11 +22,20 @@ class ProcessElement extends FlowchartElement {
 
         this.group = group;
         this.outline = outline;
-        this.label = label;
+
+        this.label = new EditableText(group, labelText);
+    }
+
+    onKeyDown(e) {
+        this.label.onKeyDown(e);
+    }
+
+    setEditable(value) {
+        this.label.setEditable(value);
     }
 
     belongsTo(el) {
-        return el == this.group || el == this.outline || el == this.label;
+        return el == this.group || el == this.outline || this.label.belongsTo(el);
     }
     
     beginResize(location) {

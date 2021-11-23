@@ -3,7 +3,7 @@ var selectAreaStart;
 var selectedElements = [];
 var resizeHandleBeingDragged = null;
 var components = [];
-
+var focusedComponent = null;
 var selectArea = new SelectArea();
 
 var state = 'idle';
@@ -18,10 +18,12 @@ function makeDraggable(evt) {
 	svg.addEventListener('touchmove', drag);
 	svg.addEventListener('touchend', endDrag);
 	svg.addEventListener('touchcancel', endDrag);
-	
+
+	window.addEventListener('keydown', onKeyDown);
+
 	let sel = document.getElementById("select");
 	sel.addEventListener('mousemove', drag);
-
+	
 	function getMousePosition(evt) {
 		var CTM = svg.getScreenCTM();
 		if (evt.touches) { evt = evt.touches[0]; }
@@ -29,6 +31,11 @@ function makeDraggable(evt) {
 			x: (evt.clientX - CTM.e) / CTM.a,
 			y: (evt.clientY - CTM.f) / CTM.d
 		};
+	}
+
+	function onKeyDown(evt) {
+		if (focusedComponent && focusedComponent.onKeyDown)
+			focusedComponent.onKeyDown(evt);
 	}
 
 	function startDrag(evt) {
@@ -69,9 +76,24 @@ function makeDraggable(evt) {
 					c.initDrag();
 				}
 			}
+
+			if (focusedComponent && focusedComponent.setEditable)
+				focusedComponent.setEditable(false);
+
+			focusedComponent = componentPicked;
+
+			if (focusedComponent.setEditable)
+				focusedComponent.setEditable(true);
+
 			state = 'move';
 		} else {
 			selectArea.startDrag(mouseDownPosition.x, mouseDownPosition.y);
+
+			if (focusedComponent && focusedComponent.setEditable)
+				focusedComponent.setEditable(false);
+
+			focusedComponent = null;
+
 			state = 'select';
 		}
 	}
@@ -109,7 +131,7 @@ function makeDraggable(evt) {
 
 		} else if (state == 'move') {
 			for (let c of components) {
-				c.endDrag();
+				c.endDrag();				
 			}
 		} else if (state == 'select') {
 			let box = selectArea.getBox();

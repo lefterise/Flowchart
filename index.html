@@ -3,6 +3,7 @@
 	<script src="ResizeHandle.js"></script>
 	<script src="SelectArea.js"></script>
 	<script src="FlowchartElement.js"></script>
+	<script src="EditableText.js"></script>
 	<script src="flowchart_elements\ProcessElement.js"></script>
 	<script src="flowchart_elements\StartStopElement.js"></script>
 	<script src="flowchart_elements\IoElement.js"></script>
@@ -110,6 +111,14 @@
 
 		.ns-resize {
 			cursor: ns-resize;
+		}
+		
+		@keyframes blink {
+		  100%,
+		  0% {opacity: 0;}
+		  30% {opacity: 0;}
+		  40% {opacity: 1;}
+		  90% {opacity: 1;}
 		}
 	</style>
 </head>
