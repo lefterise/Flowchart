@@ -37,8 +37,13 @@ class EditableText {
         return el == this.label;
     }
 
-    setEditable(value) {
-        this.caret.style.visibility = value ? 'visible' : 'hidden';
+    setEditable(editable) {
+        this.caret.style.visibility = editable ? 'visible' : 'hidden';
+
+        if (editable) {
+            this.caretPos = this.content.textContent.length;
+            this.positionCaret();
+        }
     }
 
     getCaretTransform() {
@@ -72,10 +77,16 @@ class EditableText {
             --this.caretPos;
         } else if (e.key == 'Delete' && this.caretPos < this.content.textContent.length) {
             this.content.textContent = this.content.textContent.slice(0, this.caretPos) + this.content.textContent.slice(this.caretPos + 1);
-        } else if (e.key == 'ArrowLeft' && this.caretPos > 0) {
+        } else if (e.key == 'ArrowLeft' && this.caretPos > 0) {            
             --this.caretPos;
+            while (e.ctrlKey && this.caretPos > 0 && this.content.textContent.charAt(this.caretPos - 1) != ' ') {
+                --this.caretPos;
+            }
         } else if (e.key == 'ArrowRight' && this.caretPos < this.content.textContent.length) {
             ++this.caretPos;
+            while (e.ctrlKey && this.caretPos < this.content.textContent.length && this.content.textContent.charAt(this.caretPos - 1) != ' ') {
+                ++this.caretPos;
+            }
         } else if (e.key == 'End') {
             this.caretPos = this.content.textContent.length;
         } else if (e.key == 'Home') {
