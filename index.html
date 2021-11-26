@@ -4,6 +4,7 @@
 	<script src="SelectArea.js"></script>
 	<script src="FlowchartElement.js"></script>
 	<script src="EditableText.js"></script>
+	<script src="flowchart_elements\rhombus.js"></script>
 	<script src="flowchart_elements\ProcessElement.js"></script>
 	<script src="flowchart_elements\StartStopElement.js"></script>
 	<script src="flowchart_elements\IoElement.js"></script>
@@ -112,13 +113,23 @@
 		.ns-resize {
 			cursor: ns-resize;
 		}
-		
+
 		@keyframes blink {
-		  100%,
-		  0% {opacity: 0;}
-		  30% {opacity: 0;}
-		  40% {opacity: 1;}
-		  90% {opacity: 1;}
+			100%, 0% {
+				opacity: 0;
+			}
+
+			30% {
+				opacity: 0;
+			}
+
+			40% {
+				opacity: 1;
+			}
+
+			90% {
+				opacity: 1;
+			}
 		}
 	</style>
 </head>
@@ -166,7 +177,7 @@
 <button><img src='toolbar/input.png' onclick="addIOElement('x = in(Give number)')"></img></button>
 <button><img src='toolbar/process.png' onclick="addProcessElement('y = x * x')"></img></button>
 <button><img src='toolbar/output.png' onclick="addIOElement('out(The square is:, y)')"></img></button>
-<button><img src='toolbar/if.png'></img></button>
+<button><img src='toolbar/if.png' onclick="addRhombusElement('x > 0')"></img></button>
 </ul>
 </div>
 

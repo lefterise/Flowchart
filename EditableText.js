@@ -1,9 +1,9 @@
 class EditableText {
-    constructor(parent, labelText) {
+    constructor(parent, labelText, x, y) {
         let label = document.createElementNS("http://www.w3.org/2000/svg", "text");
         label.classList.add("text", "unselectable");
-        label.setAttribute("x", "10");
-        label.setAttribute("y", "23");
+        label.setAttribute("x", x);
+        label.setAttribute("y", y);
         label.setAttribute("font-family", "Verdana");
         label.setAttribute("font-size", "10");
         label.setAttribute("fill", "black");
@@ -16,10 +16,10 @@ class EditableText {
         parent.appendChild(label);        
 
         let caret = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        caret.setAttribute("x1", "10");
-        caret.setAttribute("x2", "10");
-        caret.setAttribute("y1", "13");
-        caret.setAttribute("y2", "25");
+        caret.setAttribute("x1", x);
+        caret.setAttribute("x2", x);
+        caret.setAttribute("y1", y - 10);
+        caret.setAttribute("y2", y + 2);
         //caret.setAttribute("style", "stroke:rgb(255,0,0);stroke-width:2");
         caret.setAttribute("style", "animation: blink 1.3s infinite; stroke-width: 0.5; visibility: hidden");
         caret.setAttribute("stroke", "black");
@@ -68,6 +68,9 @@ class EditableText {
     }
 
     onKeyDown(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
         if (e.key.length == 1) {
             this.content.textContent = this.content.textContent.slice(0, this.caretPos) + e.key + this.content.textContent.slice(this.caretPos);
             ++this.caretPos;

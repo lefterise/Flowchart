@@ -23,7 +23,7 @@ class ProcessElement extends FlowchartElement {
         this.group = group;
         this.outline = outline;
 
-        this.label = new EditableText(group, labelText);
+        this.label = new EditableText(group, labelText, 10, 23);
     }
 
     onKeyDown(e) {

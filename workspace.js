@@ -162,4 +162,9 @@ function addStartEndElement(labelText) {
 	components.push(component);
 }
 
+function addRhombusElement(labelText) {
+	let component = new RhombusElement(labelText);
+	components.push(component);
+}
+
 function start(){}
